@@ -1,0 +1,107 @@
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+//download pacotes do discord
+using Discord.WebSocket;
+using Discord.Commands;
+using Discord;
+using System.Reflection;
+
+namespace Bot_Discord_ok
+{
+    public class Program
+    {
+        public static Task Main(string[] args) => new Program().MainAsync();
+        //Ligar o bot
+        private Task Log(LogMessage msg)
+        {
+            Console.WriteLine(msg.ToString());
+            return Task.CompletedTask;
+        }
+        private DiscordSocketClient _client;        
+
+        public async Task MainAsync()
+        {
+
+
+            _client = new DiscordSocketClient();
+            _client.Log += Log;
+            
+            var token = "ODU4NDQxNTczNzk2NTQ0NTMz.GULelH.HnoShtNnMc0FdeZrcYof6SqIO3oR8w4OUBB3wg";
+
+            await _client.LoginAsync(TokenType.Bot, token);
+            await _client.StartAsync();
+            await Task.Delay(-1);
+        }
+        //Comandos do bot 
+        public class LoggingService
+        {
+            public LoggingService(DiscordSocketClient client, CommandService command)
+            {
+                client.Log += LogAsync;
+                command.Log += LogAsync;
+
+            }
+            private Task LogAsync(LogMessage message)
+            {
+                if (message.Exception is CommandException cmdException)
+                {
+                    Console.WriteLine($"[Command/{message.Severity}] {cmdException.Command.Aliases.First()}" + $" Failed to execute in{cmdException.Context.Channel}.");
+                    Console.WriteLine(cmdException);
+                }
+                else
+                    Console.WriteLine($"[General/{message.Severity}] {message}");
+                return Task.CompletedTask;
+            }
+
+            //Prefixo Do comando
+            public class CommandHandler
+            {
+                private readonly DiscordSocketClient _client;
+                private readonly CommandService _commands;
+                public CommandHandler(DiscordSocketClient client, CommandService commands)
+                {
+                    _client = client;
+                    _commands = commands;
+
+                }
+                public async Task InstallCommandsAsync()
+                {
+                    _client.MessageReceived += HandleCommandAsync;
+                    await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(),services: null);
+
+                }
+
+                private void MyFunction(IMessage message)
+                {
+                     if (message is not IUserMessage userMessage)
+                       return;
+                    Console.WriteLine(userMessage.Author);
+                }
+
+                private async Task HandleCommandAsync(SocketMessage messageParam)
+                {
+                    var message = messageParam as SocketUserMessage;
+                    if (message == null) return;
+
+                    int argPos = 0;
+
+                    if (!(message.HasCharPrefix('!', ref argPos) || 
+                    message.HasMentionPrefix(_client.CurrentUser, ref argPos)) ||
+                    message.Author.IsBot)
+                    return;
+
+                    var context = new SocketCommandContext(_client, message);
+
+                    await _commands.ExecuteAsync(
+                        context: context,
+                        argPos: argPos,
+                        services: null
+                    );
+
+                }
+            }
+            
