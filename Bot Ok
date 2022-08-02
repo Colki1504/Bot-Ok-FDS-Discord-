@@ -30,7 +30,7 @@ namespace Bot_Discord_ok
             _client = new DiscordSocketClient();
             _client.Log += Log;
             
-            var token = "ODU4NDQxNTczNzk2NTQ0NTMz.GULelH.HnoShtNnMc0FdeZrcYof6SqIO3oR8w4OUBB3wg";
+            var token = "Token";
 
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
