@@ -1,0 +1,54 @@
+//essas serão as bibliotecas usada para esse bot.
+using System;
+using System.Threading.Tasks;
+using BotDiscordOK.Comandos;
+using DSharpPlus;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+
+namespace BotDiscordOK
+{
+    class Program
+    {
+        static void Main(string[] args) //aqui a gente vai chamar o funcionamento do bot
+        {
+            MainAsync().GetAwaiter().GetResult();
+
+            
+        }
+
+        internal static async Task MainAsync()
+        {
+
+            //ligar bot/ aqui seria a parte que iremos ligar o nosso bot
+            var discord = new DiscordClient(new DiscordConfiguration() // Aqui sera as configuraçam do bot > Então tudo q estiver aqui sera de sua opção
+            {
+                Token = "token", //Registrar o Token de seu bot
+                TokenType = TokenType.Bot //Colocar ele para funcionar
+            });
+            //ligar bot
+
+            //prefix/ nessa parte iremos definir o prefix para os comandos e outras configurações
+            var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
+            { 
+                StringPrefixes = new[] { ">" }, // definir o prefixo
+                CaseSensitive = false,          //nessa é de sua escolha, então se quiser só colocar o opção do prefixo, ira funcionar da mesma forma 
+                EnableDms = false,
+                EnableMentionPrefix = true,
+                IgnoreExtraArguments = true //ignorar letras que vem a frente do seu bot
+               
+            });
+            //prefix
+
+            //comandos/ essa parte é mais complicado, aqui eu apanhei mt mesmo, talvez vc também apanhe kkkkkkkkk
+            commands.RegisterCommands<Comandoss>(); //vai ter outro repositorio para essa parte 
+            //comandos/ Mas aqui você tera que registrar os comandos, que ficara em outro modulo, sim é meio complicado kkk
+
+            await discord.ConnectAsync(); //conecta o bot
+            await Task.Delay(-1);
+        }
+
+        
+
+    }
+}
